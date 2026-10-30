@@ -319,6 +319,16 @@ tr[data-mjump]{cursor:pointer}tr[data-mjump]:hover td{background:var(--accent-so
 .hlbox .l{font-size:13px;font-weight:700;margin-bottom:6px}.hlv{font-size:18px;min-width:44px;display:inline-block}
 .hlin{width:70px;text-align:center;font-weight:700}.hlbox .moods button{font-size:18px;padding:1px 4px;margin:1px}
 .hbar{display:inline-block;height:8px;border-radius:4px;background:linear-gradient(90deg,#7fd3ff,#3a8de0);vertical-align:middle;margin-right:6px}
+.ovl{position:fixed;inset:0;background:rgba(15,10,40,.93);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.ovl-box{background:var(--panel);color:var(--text);border-radius:18px;padding:22px 20px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.ovl-box h2{font-size:19px;margin:6px 0 8px;line-height:1.4}.ovl-box ol{text-align:left;padding-left:22px;line-height:1.9;font-size:15px}
+.ovl-arrow{position:fixed;font-size:48px;color:#ffd66b;animation:bob 1s ease-in-out infinite;text-shadow:0 2px 10px rgba(0,0,0,.6);z-index:101}
+.ovl-arrow.tr{top:4px;right:12px}.ovl-arrow.br{bottom:max(6px,env(safe-area-inset-bottom));right:18px}.ovl-arrow.bc{bottom:max(6px,env(safe-area-inset-bottom));left:50%;margin-left:-24px}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.istep{display:flex;gap:10px;align-items:flex-start;text-align:left;margin:12px 0;font-size:15px;line-height:1.5}
+.istep .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.ibanner{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#3b2a8f,#7a3aa8);color:#fff;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:13px}
+.ibanner span{flex:1}.ibx{border:0;background:none;color:#fff;font-size:16px;padding:0 4px}
 @media print{.side,.topbar,.qbar,.ta,.addf{display:none!important}.main{padding:0}}
 </style>
 </head>
@@ -1504,7 +1514,7 @@ window.addEventListener('online',()=>Sync.soon(500));window.addEventListener('of
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')Sync.soon(300)});
 window.addEventListener('focus',()=>Sync.soon(300));
 setInterval(()=>{if(document.visibilityState==='visible')Sync.run()},30000);
-const PUBLIC_VERSION='3';
+const PUBLIC_VERSION='4';
 /* ================= 공개판: 처음 실행 안내 · 설치 안내 ================= */
 const PRESET_HABITS=[{id:'p_read',text:'독서',min:30,icon:'📚'},{id:'p_exercise',text:'운동',min:30,icon:'🏃'},{id:'p_thanks',text:'감사 일기 3줄',min:0,icon:'🙏'},
   {id:'p_news',text:'뉴스 보기',min:20,icon:'📰'},{id:'p_water',text:'물 2L 마시기',min:0,icon:'💧'},{id:'p_meditate',text:'명상',min:10,icon:'🧘'},
@@ -1523,7 +1533,7 @@ function installGuideHTML(){
   if(IS_IOS)return `<ol><li>이 페이지를 <b>Safari</b>로 열어주세요 (크롬·네이버 앱 X)</li><li>아래쪽 <b>공유 버튼 □↑</b> 누르기</li><li><b>"홈 화면에 추가"</b> → <b>추가</b></li><li>홈 화면의 🚀 <b>기적플래너</b> 아이콘으로 실행!</li></ol>`;
   if(IS_ANDROID)return `<ol><li><b>Chrome</b>으로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'오른쪽 위 <b>⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"</b>'}</li><li>홈 화면의 🚀 <b>기적플래너</b> 아이콘으로 실행!</li></ol>`;
   return `<ol><li><b>Chrome</b> 또는 <b>Edge</b>로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'주소창 오른쪽 끝의 <b>설치 아이콘(⊕ 또는 📥)</b> 누르기'}</li><li>바탕화면·시작메뉴의 🚀 <b>기적플래너</b>로 실행!</li></ol>`}
-function showInstallGuide(){modal(`<h3>📲 앱으로 설치하기</h3>${installGuideHTML()}
+function showInstallGuide(){if(IN_APP)return showInAppOverlay();if(IS_IOS)return showIOSGuide();modal(`<h3>📲 앱으로 설치하기</h3>${installGuideHTML()}
   <p class="small muted">설치하면 아이콘이 생기고 <b>인터넷 없이도</b> 실행돼요. 설치는 무료이고 회원가입이 없어요.</p>
   <div class="acts">${installEvt?'<button class="btn pri" id="igInstall">📲 앱 설치</button>':''}<button class="btn" data-close>닫기</button></div>`,()=>{const b=$('#igInstall');if(b)b.onclick=()=>{closeModal();doInstall()}})}
 $('#installBtn').onclick=doInstall;
@@ -1542,11 +1552,11 @@ function showWelcome(){
    <div class="f"><label>2. 매일 할 루틴을 골라주세요 (나중에 언제든 바꿀 수 있어요)</label>
      <div class="row" id="wHabits" style="gap:6px">${PRESET_HABITS.map(h=>`<label class="fchip ${cur.has(h.id)?'on':''}" style="cursor:pointer"><input type="checkbox" value="${h.id}" ${cur.has(h.id)?'checked':''} style="display:none">${h.icon} ${h.text}</label>`).join('')}</div>
      <input id="wCustom" placeholder="직접 추가 (쉼표로 여러 개: 예) 일기 쓰기, 스트레칭)" style="margin-top:6px"></div>
-   <div class="f"><label>3. 앱으로 설치하기</label><div class="small">${installGuideHTML()}</div></div>
+   <div class="f"><label>3. 앱으로 설치하기</label><div class="small">${installGuideHTML()}</div>${IS_IOS&&!IN_APP?'<button class="btn sm" id="wGuide" type="button" style="margin-top:6px">📲 그림으로 설치 방법 보기</button>':''}</div>
    <p class="small muted">🔒 기록은 이 기기에만 저장돼요. 가끔 [설정 · 백업 → 백업 파일 저장]을 해두면 안전해요.</p>
    <div class="acts">${installEvt?'<button class="btn" id="wInstall">📲 앱 설치</button>':''}<button class="btn pri" id="wStart">시작하기 →</button></div>`,()=>{
     $('#wHabits').onchange=e=>{const l=e.target.closest('label');if(l)l.classList.toggle('on',e.target.checked)};
-    const w=$('#wInstall');if(w)w.onclick=doInstall;
+    const w=$('#wInstall');if(w)w.onclick=doInstall;const wg=$('#wGuide');if(wg)wg.onclick=showIOSGuide;
     $('#wStart').onclick=()=>{
       (S.profile??={}).name=$('#wName').value.trim();
       const pick=new Set([...document.querySelectorAll('#wHabits input:checked')].map(i=>i.value));
@@ -1593,6 +1603,51 @@ document.addEventListener('click',e=>{const r=e.target.closest('[data-hrange]');
 document.addEventListener('change',e=>{const f=e.target.dataset&&e.target.dataset.hlin;if(!f)return;const v=parseFloat(String(e.target.value).replace(',','.'));
   const h=hlOf(hlDay());if(isNaN(v))delete h[f];else h[f]=v;h.updatedAt=Date.now();commit();toast('컨디션을 저장했어요.')});
 
+
+/* ---------- 설치 쉽게: 인앱 브라우저 탈출 · 아이폰 그림 안내 · 설치 배너 ---------- */
+const IS_KAKAO=/KAKAOTALK/i.test(UA),IS_IPAD=/iPad/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const IOS_OTHER=IS_IOS&&/CriOS|FxiOS|EdgiOS|OPiOS|Whale/i.test(UA);
+const APP_URL=location.origin+location.pathname;
+const SHARE_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+const inAppName=()=>/Instagram/i.test(UA)?'인스타그램':IS_KAKAO?'카카오톡':/FBAN|FBAV/i.test(UA)?'페이스북':/NAVER/i.test(UA)?'네이버 앱':/Line\//i.test(UA)?'라인':'다른 앱';
+function escapeInApp(){
+  if(IS_KAKAO){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(APP_URL);return true}
+  if(IS_ANDROID){location.href='intent://'+location.host+location.pathname+'#Intent;scheme=https;package=com.android.chrome;end';return true}
+  return false}
+function copyLink(){const done=()=>toast('🔗 링크를 복사했어요. '+(IS_IOS?'Safari':'Chrome')+' 주소창에 붙여넣어 주세요.');
+  try{navigator.clipboard.writeText(APP_URL).then(done,fallback)}catch(e){fallback()}
+  function fallback(){const t=document.createElement('textarea');t.value=APP_URL;document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(e){prompt('이 링크를 복사하세요',APP_URL)}t.remove()}}
+function showInAppOverlay(){if($('#inapp'))return;const o=document.createElement('div');o.className='ovl';o.id='inapp';
+  o.innerHTML=`<div class="ovl-arrow tr">⬆</div><div class="ovl-box"><div style="font-size:44px">🚀</div>
+    <h2>설치하려면<br>${IS_IOS?'Safari':'Chrome'}로 열어주세요</h2>
+    <p class="small muted">지금은 ${inAppName()} 안에서 열려 있어서 앱 설치가 안 돼요.</p>
+    <ol>${IS_IOS?`<li>오른쪽 위 <b>⋯</b> 버튼 누르기<br><span class="small muted">(아래쪽에 ${SHARE_SVG} 버튼이 있으면 그걸 눌러도 돼요)</span></li><li><b>"외부 브라우저로 열기"</b> 또는 <b>"Safari로 열기"</b> 누르기</li>`
+      :`<li>오른쪽 위 <b>⋮</b> 버튼 누르기</li><li><b>"다른 브라우저로 열기"</b> 또는 <b>"Chrome으로 열기"</b> 누르기</li>`}</ol>
+    <div class="acts" style="justify-content:center;flex-wrap:wrap">${IS_IOS?'<button class="btn pri" id="ovOpen">🧭 Safari로 바로 열기</button>':'<button class="btn pri" id="ovOpen">🌐 Chrome으로 바로 열기</button>'}<button class="btn" id="ovCopy">🔗 링크 복사</button></div>
+    <p class="small muted" style="margin-top:8px">버튼이 안 되면 [링크 복사] 후 ${IS_IOS?'Safari':'Chrome'} 주소창에 붙여넣으세요.</p>
+    <button class="btn sm" id="ovSkip" style="margin-top:4px">설치 없이 여기서 둘러보기</button></div>`;
+  document.body.appendChild(o);
+  $('#ovOpen').onclick=()=>{if(IS_IOS)location.href='x-safari-'+APP_URL;else escapeInApp()};
+  $('#ovCopy').onclick=copyLink;
+  $('#ovSkip').onclick=()=>{o.remove();if(!S.onboarded)showWelcome()}}
+function showIOSGuide(){if($('#iosg'))return;const o=document.createElement('div');o.className='ovl';o.id='iosg';
+  o.innerHTML=`<div class="ovl-box"><h2>📲 홈 화면에 추가하기</h2>
+    ${IOS_OTHER?`<div class="istep"><span class="n">1</span><div>주소창 오른쪽의 공유 버튼 ${SHARE_SVG} 누르기</div></div>`
+      :`<div class="istep"><span class="n">1</span><div>${IS_IPAD?'화면 <b>오른쪽 위</b>':'화면 <b>아래쪽</b>'}의 공유 버튼 ${SHARE_SVG} 누르기<br><span class="small muted">안 보이면 오른쪽 아래 <b>⋯</b> → <b>공유</b></span></div></div>`}
+    <div class="istep"><span class="n">2</span><div>메뉴를 위로 올려서 <b>"홈 화면에 추가"</b> ⊞ 누르기</div></div>
+    <div class="istep"><span class="n">3</span><div>오른쪽 위 <b>"추가"</b>를 누르면 끝! 홈 화면의 🚀 아이콘으로 열면 돼요</div></div>
+    <button class="btn pri" id="iosgOk" style="margin-top:6px">알겠어요</button></div>
+    <div class="ovl-arrow ${IOS_OTHER||IS_IPAD?'tr':'bc'}">${IOS_OTHER||IS_IPAD?'⬆':'⬇'}</div>`;
+  document.body.appendChild(o);$('#iosgOk').onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()}}
+function installBanner(){if(IS_STANDALONE||IN_APP||$('.ibanner'))return;let h=0;try{h=+localStorage.getItem(KEY+'_bannerHide')||0}catch(e){}
+  if(Date.now()-h<3*864e5)return;
+  const b=document.createElement('div');b.className='ibanner';
+  b.innerHTML='<span>📲 앱으로 설치하면 아이콘으로 바로 열리고 인터넷 없이도 돼요</span><button class="btn sm" id="ibGo" style="background:#fff;color:#3b2a8f;border:0">설치하기</button><button class="ibx" id="ibX" title="닫기">✕</button>';
+  document.querySelector('.main').prepend(b);
+  $('#ibGo').onclick=()=>doInstall();
+  $('#ibX').onclick=()=>{try{localStorage.setItem(KEY+'_bannerHide',Date.now())}catch(e){}b.remove()}}
+window.addEventListener('appinstalled',()=>{const b=$('.ibanner');if(b)b.remove()});
+
 function applyTheme(){document.documentElement.dataset.theme=S.settings.theme;$('#themeBtn').textContent=S.settings.theme==='dark'?'☀️':'🌙'}
 $('#themeBtn').onclick=()=>{S.settings.theme=S.settings.theme==='dark'?'light':'dark';save();applyTheme()};
 
@@ -1607,7 +1662,7 @@ if(location.protocol.startsWith('http')){
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 }
-if(!S.onboarded)setTimeout(showWelcome,400);
+if(IN_APP){escapeInApp();setTimeout(showInAppOverlay,IS_ANDROID||IS_KAKAO?1500:200)}else{if(!S.onboarded)setTimeout(showWelcome,400);setTimeout(installBanner,900)}
 </script>
 </body>
 </html>
