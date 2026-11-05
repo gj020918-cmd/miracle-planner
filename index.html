@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="기적플래너">
+<meta name="apple-mobile-web-app-title" content="될놈다이어리">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>기적 플래너</title>
+<title>될놈다이어리</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
 <style>
 :root{
@@ -335,7 +335,7 @@ tr[data-mjump]{cursor:pointer}tr[data-mjump]:hover td{background:var(--accent-so
 <body>
 <div class="app">
   <nav class="side" id="side">
-    <div class="logo"><span>🚀</span>기적 플래너</div>
+    <div class="logo"><span>🚀</span>될놈다이어리</div>
     <button class="nav" data-v="home">🏠 <span>홈 · 오늘</span><span class="k">1</span></button>
     <button class="nav" data-v="day">📋 <span>하루 계획</span><span class="k">2</span></button>
     <button class="nav" data-v="week">🗓️ <span>주간 계획</span><span class="k">3</span></button>
@@ -1272,7 +1272,7 @@ function rSettings(){
     <hr style="border:0;border-top:1px solid var(--line);margin:12px 0"><button class="btn danger" id="reset">⚠ 전체 데이터 초기화</button></div>
   </div>`;
   bindSyncCard();
-  $('#bk').onclick=()=>{download(`기적플래너_백업_${todayS()}.json`,JSON.stringify(S,null,1),'application/json');S.lastBackup=Date.now();commit();toast('백업 파일을 저장했어요 (다운로드 폴더).')};
+  $('#bk').onclick=()=>{download(`될놈다이어리_백업_${todayS()}.json`,JSON.stringify(S,null,1),'application/json');S.lastBackup=Date.now();commit();toast('백업 파일을 저장했어요 (다운로드 폴더).')};
   $('#rs').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.tasks)throw 0;
     modal(`<h3>⬆ 백업 불러오기</h3><p>백업 파일: 할일 ${d.tasks.length} · 메모 ${(d.memos||[]).length} · 일지 ${Object.keys(d.journals||{}).length}</p>
       <p class="small muted"><b>합치기</b>: 지금 기기의 데이터와 백업을 합칩니다 (다른 기기와 옮길 때 추천).<br><b>덮어쓰기</b>: 지금 데이터를 지우고 백업으로 교체합니다.</p>
@@ -1420,7 +1420,7 @@ $('#gsearch').addEventListener('keydown',e=>{if(e.key!=='Enter'||e.isComposing)r
   modal(`<h3>🔍 "${esc(q)}" 검색 결과 ${r.length}건</h3><div class="sres">${r.slice(0,200).join('')||'<div class="empty">결과 없음</div>'}</div><div class="acts"><button class="btn" data-close>닫기</button></div>`)});
 /* ================= 자동 동기화 (GitHub 비공개 Gist + 암호화) ================= */
 const SYNC_KEY='miracle_public_sync',GIST_DESC='miracle-planner-sync (암호화된 기적플래너 데이터)',GFILE='planner.json';
-const TOKEN_URL='https://github.com/settings/tokens/new?scopes=gist&description='+encodeURIComponent('기적플래너 동기화');
+const TOKEN_URL='https://github.com/settings/tokens/new?scopes=gist&description='+encodeURIComponent('될놈다이어리 동기화');
 let SC={};try{SC=JSON.parse(localStorage.getItem(SYNC_KEY)||'{}')}catch(e){}   // 토큰·비밀번호는 이 기기에만 저장 (업로드 안 됨)
 const saveSC=()=>{try{localStorage.setItem(SYNC_KEY,JSON.stringify(SC))}catch(e){}};
 const b64=u8=>{let s='';for(let i=0;i<u8.length;i+=32768)s+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));return btoa(s)};
@@ -1514,7 +1514,7 @@ window.addEventListener('online',()=>Sync.soon(500));window.addEventListener('of
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')Sync.soon(300)});
 window.addEventListener('focus',()=>Sync.soon(300));
 setInterval(()=>{if(document.visibilityState==='visible')Sync.run()},30000);
-const PUBLIC_VERSION='4';
+const PUBLIC_VERSION='5';
 /* ================= 공개판: 처음 실행 안내 · 설치 안내 ================= */
 const PRESET_HABITS=[{id:'p_read',text:'독서',min:30,icon:'📚'},{id:'p_exercise',text:'운동',min:30,icon:'🏃'},{id:'p_thanks',text:'감사 일기 3줄',min:0,icon:'🙏'},
   {id:'p_news',text:'뉴스 보기',min:20,icon:'📰'},{id:'p_water',text:'물 2L 마시기',min:0,icon:'💧'},{id:'p_meditate',text:'명상',min:10,icon:'🧘'},
@@ -1530,9 +1530,9 @@ function installGuideHTML(){
   if(IS_STANDALONE)return '<p>✅ 이미 앱으로 설치되어 있어요. 홈 화면(바탕화면) 아이콘으로 열면 됩니다.</p>';
   if(IN_APP)return `<p><b>⚠️ 지금 카카오톡·인스타그램 같은 앱 안에서 열려 있어요.</b> 이 상태로는 설치할 수 없어요.</p>
     <p>${IS_IOS?'오른쪽 아래 <b>⋯ 또는 공유 버튼 → "Safari로 열기"</b>':'오른쪽 위/아래 <b>⋮ → "다른 브라우저로 열기" (Chrome)</b>'}를 누른 뒤 다시 설치해 주세요.</p>`;
-  if(IS_IOS)return `<ol><li>이 페이지를 <b>Safari</b>로 열어주세요 (크롬·네이버 앱 X)</li><li>아래쪽 <b>공유 버튼 □↑</b> 누르기</li><li><b>"홈 화면에 추가"</b> → <b>추가</b></li><li>홈 화면의 🚀 <b>기적플래너</b> 아이콘으로 실행!</li></ol>`;
-  if(IS_ANDROID)return `<ol><li><b>Chrome</b>으로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'오른쪽 위 <b>⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"</b>'}</li><li>홈 화면의 🚀 <b>기적플래너</b> 아이콘으로 실행!</li></ol>`;
-  return `<ol><li><b>Chrome</b> 또는 <b>Edge</b>로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'주소창 오른쪽 끝의 <b>설치 아이콘(⊕ 또는 📥)</b> 누르기'}</li><li>바탕화면·시작메뉴의 🚀 <b>기적플래너</b>로 실행!</li></ol>`}
+  if(IS_IOS)return `<ol><li>이 페이지를 <b>Safari</b>로 열어주세요 (크롬·네이버 앱 X)</li><li>아래쪽 <b>공유 버튼 □↑</b> 누르기</li><li><b>"홈 화면에 추가"</b> → <b>추가</b></li><li>홈 화면의 🚀 <b>될놈다이어리</b> 아이콘으로 실행!</li></ol>`;
+  if(IS_ANDROID)return `<ol><li><b>Chrome</b>으로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'오른쪽 위 <b>⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"</b>'}</li><li>홈 화면의 🚀 <b>될놈다이어리</b> 아이콘으로 실행!</li></ol>`;
+  return `<ol><li><b>Chrome</b> 또는 <b>Edge</b>로 열어주세요</li><li>${installEvt?'아래 <b>[📲 앱 설치]</b> 버튼 누르기':'주소창 오른쪽 끝의 <b>설치 아이콘(⊕ 또는 📥)</b> 누르기'}</li><li>바탕화면·시작메뉴의 🚀 <b>될놈다이어리</b>로 실행!</li></ol>`}
 function showInstallGuide(){if(IN_APP)return showInAppOverlay();if(IS_IOS)return showIOSGuide();modal(`<h3>📲 앱으로 설치하기</h3>${installGuideHTML()}
   <p class="small muted">설치하면 아이콘이 생기고 <b>인터넷 없이도</b> 실행돼요. 설치는 무료이고 회원가입이 없어요.</p>
   <div class="acts">${installEvt?'<button class="btn pri" id="igInstall">📲 앱 설치</button>':''}<button class="btn" data-close>닫기</button></div>`,()=>{const b=$('#igInstall');if(b)b.onclick=()=>{closeModal();doInstall()}})}
@@ -1541,12 +1541,12 @@ function profileCardHTML(){const n=(S.profile&&S.profile.name)||'';return `<h3>�
   <div class="row"><input class="field" id="pfName" placeholder="이름 또는 닉네임" value="${esc(n)}" style="flex:1;min-width:160px"><button class="btn pri" id="pfSave">저장</button>
   <button class="btn" id="pfInstall">📲 설치 방법</button><button class="btn" id="pfIntro">👋 처음 안내 다시 보기</button></div>
   <p class="small muted" style="margin-top:8px">🔒 모든 기록(할일·일기·가계부)은 <b>이 기기 안에만</b> 저장되고 어디에도 전송되지 않아요. 기기를 바꾸거나 앱을 지우기 전에 아래 <b>[백업 파일 저장]</b>을 해주세요.</p>
-  <p class="small muted">기적 플래너 공개판 v${PUBLIC_VERSION} · 무료</p>`}
+  <p class="small muted">될놈다이어리 공개판 v${PUBLIC_VERSION} · 무료</p>`}
 document.addEventListener('click',e=>{const t=e.target;if(t.id==='pfSave'){(S.profile??={}).name=$('#pfName').value.trim();commit();toast('저장했어요.')}
   else if(t.id==='pfInstall')showInstallGuide();else if(t.id==='pfIntro')showWelcome()});
 function showWelcome(){
   const cur=new Set(S.habits.map(h=>h.id));
-  modal(`<h3>🚀 기적 플래너에 오신 걸 환영해요!</h3>
+  modal(`<h3>🚀 될놈다이어리에 오신 걸 환영해요!</h3><p style="margin:-4px 0 8px;font-weight:700;color:var(--accent)">될 놈은 된다. 안 되는 이유 말고 되는 방법을 찾는 다이어리 💪</p>
    <p class="small">할 일 · 매일 루틴 · 하루 회고 · 비밀 일기장 · 가계부 · 건강 기록을 한곳에서. <b>무료, 회원가입 없음, 인터넷 없이도 작동</b>해요.</p>
    <div class="f"><label>1. 이름 또는 닉네임 (선택)</label><input id="wName" value="${esc((S.profile&&S.profile.name)||'')}" placeholder="예: 민지"></div>
    <div class="f"><label>2. 매일 할 루틴을 골라주세요 (나중에 언제든 바꿀 수 있어요)</label>
